@@ -21,8 +21,21 @@ def debug(message):
 def send():
     if chatID is not None:
         textfile = open('Changes.txt', mode='r')
-        bot.send_message(chatID, text="Бот закончил анализ таблицы")
-        bot.send_document(chatID, document=textfile)
+        text = textfile.read()
+        textfile.close()
+
+        if text:
+            bot.send_message(chatID, text="Бот закончил анализ таблицы")
+            with open('Changes.txt', 'rb') as document:
+                bot.send_document(chatID, document)
+        else:
+            textfile = open('Changes.txt', mode='a')
+            textfile.write('Нет изменений')
+            textfile.close()
+            bot.send_message(chatID, text="Бот закончил анализ таблицы")
+            with open('Changes.txt', 'rb') as document:
+                bot.send_document(chatID, document)
+
 
 if __name__ == "__main__":
     bot.polling(none_stop=True)

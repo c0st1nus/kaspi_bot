@@ -1,6 +1,7 @@
 from openpyxl import load_workbook, open, Workbook
 from config import excel_old_path, excel_new_path, excel_price_path, x_tenge
 from Bot import debug, send
+from datetime import datetime
 
 def excel_actions(action, search_value=None, web_price=None, BotSend=None):
 
@@ -55,11 +56,16 @@ def excel_actions(action, search_value=None, web_price=None, BotSend=None):
             # Новое значение po F + результат поиска (цифра)
             sheet['D' + f'{number}'] = int_upd_price
             wb.save(excel_new_path)
-            debug(f'Kaspi-Bot обновил цену на {search_value}: \n Новая: {int_upd_price}, Старая: {int_new_price}, Min Price: {int_new_min_price}')
+            now = datetime.now()
+            formatted_date_time = now.strftime("%Y:%m:%d:%H:%M")
+            debug(f'({formatted_date_time}) Article - {search_value}: {int_upd_price} : {int_new_price} : {int_new_min_price}')
             print(f'Kaspi-Bot обновил цену: Новая: {int_upd_price}, Старая: {int_new_price}, Min Price: {int_new_min_price}')
 
 
         else:
+            now = datetime.now()
+            formatted_date_time = now.strftime("%Y:%m:%d:%H:%M")
+            debug(f'({formatted_date_time}) Article - {search_value}: No need to update : price - {int_new_price} : {int_new_min_price}')
             print('Kaspi-Bot: Обновление цены не требуется.')
 
 

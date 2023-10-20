@@ -9,6 +9,8 @@ from kaspi.get import request_price
 
 from user_agents.random_agnet import get_agent
 
+from Bot import debug
+from datetime import datetime
 
 # Бесконечний цикл.
 # Сравнивает две таблицы, находит совпадения и передает их для дальнейшей обработки другой функции.
@@ -79,6 +81,10 @@ def handler(article):
 
     if resault == 'error':
         print('Kaspi-Bot: Не удалось получить цену конкурентов.')
+        if(article != 'SKU'):
+            now = datetime.now()
+            formatted_date_time = now.strftime("%Y:%m:%d:%H:%M")
+            debug(f'({formatted_date_time}) Article - {article}: Error: can\'t find price of competitor')
         sleep(1)
 
     else:
