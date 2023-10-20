@@ -1,6 +1,4 @@
 import requests
-
-
 def request_price(id_id, user_agent):
 
     print('Артикул:', id_id)
@@ -25,7 +23,6 @@ def request_price(id_id, user_agent):
 
     try:
         response_data = response.json()['offers'][0]['price']
-
         return int(response_data)
 
     except:

@@ -1,9 +1,8 @@
 from openpyxl import load_workbook, open, Workbook
-
 from config import excel_old_path, excel_new_path, excel_price_path, x_tenge
+from Bot import debug, send
 
-
-def excel_actions(action, search_value=None, web_price=None):
+def excel_actions(action, search_value=None, web_price=None, BotSend=None):
 
     if action == 'select':
         new_SKU = select_loop('new', 'A')
@@ -56,11 +55,13 @@ def excel_actions(action, search_value=None, web_price=None):
             # Новое значение po F + результат поиска (цифра)
             sheet['D' + f'{number}'] = int_upd_price
             wb.save(excel_new_path)
-
+            debug(f'Kaspi-Bot обновил цену на {search_value}: \n Новая: {int_upd_price}, Старая: {int_new_price}, Min Price: {int_new_min_price}')
             print(f'Kaspi-Bot обновил цену: Новая: {int_upd_price}, Старая: {int_new_price}, Min Price: {int_new_min_price}')
+
 
         else:
             print('Kaspi-Bot: Обновление цены не требуется.')
+
 
 
 
@@ -73,15 +74,11 @@ def excel_actions(action, search_value=None, web_price=None):
 
         sheet.delete_cols(11, 14)
         print('Kaspi-Bot: Таблица полностю обработана.')
-
+        send()
         wb.save(excel_price_path)
-    elif action == 'add':
-
-
 
 # Достает столбцы
 def select_loop(name, colum):
-
     if name == 'new':
         file_path = excel_new_path
 

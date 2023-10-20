@@ -1,6 +1,5 @@
 import random
 from time import sleep
-
 from excel.document import excel_actions
 
 from config import requests_end_range, requests_start_range, bot_op_start, bot_op_end
@@ -34,10 +33,8 @@ def loop():
         sleep(randm)
 
 
-
 # В бесконечном цикле обработывается все задачи
 def basic_bot_operation():
-
     lists = excel_actions(action='select')
 
     # Проходим по каждому списку и фильтруем значения None
@@ -54,12 +51,11 @@ def basic_bot_operation():
     # old_link = data[4]
 
     cycle = 0
-    colum_range = len(new_SKU)-1
+    colum_range = len(new_SKU) - 1
 
     print(f'Kaspi-Bot: В эксель файле {colum_range} артикулов.')
 
     for sku in new_SKU:
-
         cycle += 1
         print('===============================================')
         print(f'Цикл: {cycle} / {colum_range}')
@@ -70,11 +66,12 @@ def basic_bot_operation():
         # Генерируем рандомное время для ожидания между запросами на сайт kaspi.kz
         randm = random.randint(requests_start_range, requests_end_range)
         print(f'Kaspi-Bot: Ожидаем: {randm} сек.')
+
+
         sleep(randm)
 
 
 def handler(article):
-
     global_user_agent = get_agent()
 
     resault = request_price(id_id=article,
@@ -88,4 +85,3 @@ def handler(article):
         excel_actions(action='update',
                       search_value=article,
                       web_price=resault)
-
