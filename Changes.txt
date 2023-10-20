@@ -10,3 +10,61 @@
 (2023:10:20:20:56) Article - 110676423_438000: Error: can't find an article
 (2023:10:20:20:56) Article - 110676423_438000: Error: can't find price of competitor
 (2023:10:20:20:56) Article - 112296374_472282: No need to update : price - 18986 : 15000
+(2023:10:20:21:39) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:21:39) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:21:39) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:21:39) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:21:39) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:21:39) Article - 112296374_472282: No need to update : price - 18986 : 15000
+(2023:10:20:21:40) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:21:40) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:21:40) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:21:40) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:21:40) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:21:46) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:21:46) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:21:46) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:21:46) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:21:46) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:21:47) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:21:47) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:21:47) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:21:47) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:21:47) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:21:47) Article - 112296374_472282: No need to update : price - 18986 : 15000
+(2023:10:20:21:51) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:21:51) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:21:51) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:21:51) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:21:51) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:21:51) Article - 112296374_472282: No need to update : price - 18986 : 15000
+(2023:10:20:21:53) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:21:53) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:21:53) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:21:53) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:21:53) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:21:53) Article - 112296374_472282: No need to update : price - 18986 : 15000
+(2023:10:20:21:54) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:21:54) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:21:54) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:21:54) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:21:54) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:21:54) Article - 112296374_472282: No need to update : price - 18986 : 15000
+(2023:10:20:21:56) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:21:56) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:21:56) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:21:56) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:21:56) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:21:56) Article - 112296374_472282: No need to update : price - 18986 : 15000
+(2023:10:20:21:59) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:21:59) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:21:59) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:21:59) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:21:59) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:21:59) Article - 112296374_472282: No need to update : price - 18986 : 15000
+(2023:10:20:22:00) Article - 107924197_630090: No need to update : price - 9398 : 4000
+(2023:10:20:22:00) Article - 107924186_175605: No need to update : price - 9393 : 4000
+(2023:10:20:22:00) Article - 106696040_847204: No need to update : price - 43500 : 43500
+(2023:10:20:22:00) Article - 110676423_438000: Error: can't find an article
+(2023:10:20:22:00) Article - 110676423_438000: Error: can't find price of competitor
+(2023:10:20:22:01) Article - 112296374_472282: No need to update : price - 18986 : 15000
