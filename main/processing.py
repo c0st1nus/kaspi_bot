@@ -9,7 +9,6 @@ from kaspi.get import request_price
 
 from user_agents.random_agnet import get_agent
 
-from Bot import debug
 from datetime import datetime
 
 # Бесконечний цикл.

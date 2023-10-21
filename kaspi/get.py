@@ -1,6 +1,5 @@
 import requests
 from datetime import datetime
-from Bot import debug
 def request_price(id_id, user_agent):
 
     print('Артикул:', id_id)
@@ -19,7 +18,8 @@ def request_price(id_id, user_agent):
 
     json_data = {
         'cityId': '750000000',
-        'id': f'{id}',}
+        'id': f'{id}'
+    }
 
     response = requests.post(url=url, headers=headers, json=json_data)
 
@@ -29,9 +29,5 @@ def request_price(id_id, user_agent):
 
     except:
         print('Kaspi-Bot: Товар по артикулу не найден.')
-        if(id_id != 'SKU'):
-            now = datetime.now()
-            formatted_date_time = now.strftime("%Y:%m:%d:%H:%M")
-            debug(f'({formatted_date_time}) Article - {id_id}: Error: can\'t find an article')
         return 'error'
 
