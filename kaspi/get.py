@@ -1,6 +1,5 @@
 import requests
-from datetime import datetime
-def request_price(id_id, user_agent):
+def request(id_id, user_agent):
 
     print('Артикул:', id_id)
     parts = id_id.split("_")  # Разбиваем строку по символу "_"
@@ -24,10 +23,9 @@ def request_price(id_id, user_agent):
     response = requests.post(url=url, headers=headers, json=json_data)
 
     try:
-        response_data = response.json()['offers'][0]['price']
-        return int(response_data)
+        response_data = response.json()['offers'][0]
+        return(response_data)
 
     except:
         print('Kaspi-Bot: Товар по артикулу не найден.')
         return 'error'
-

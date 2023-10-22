@@ -1,8 +1,12 @@
 from openpyxl import load_workbook, open, Workbook
-from config import excel_old_path, excel_new_path, excel_price_path, x_tenge
-
-def excel_actions(action, search_value=None, web_price=None, BotSend=None):
-
+excel_new_path = None
+excel_old_path = None
+excel_price_path = None
+def excel_actions(action, search_value=None, web_price=None, username=None):
+    global excel_new_path, excel_old_path, excel_price_path
+    excel_new_path = f'UsersData/{username}/new.xlsx'
+    excel_old_path = f'UsersData/{username}/old.xlsx'
+    excel_price_path = f'UsersData/{username}/price_new.xlsx'
     if action == 'select':
         new_SKU = select_loop('new', 'A')
         new_price = select_loop('new', 'D')
@@ -19,7 +23,7 @@ def excel_actions(action, search_value=None, web_price=None, BotSend=None):
         sheet = wb.active
 
         # Цена конкурента - 1 тенге
-        int_upd_price = web_price - x_tenge
+        int_upd_price = int(web_price) - 1
 
         # int
         # target_value = "108602788_920758"
@@ -75,6 +79,7 @@ def excel_actions(action, search_value=None, web_price=None, BotSend=None):
 
 # Достает столбцы
 def select_loop(name, colum):
+    global excel_new_path, excel_old_path, excel_price_path
     if name == 'new':
         file_path = excel_new_path
 
@@ -95,5 +100,4 @@ def select_loop(name, colum):
         column_values.append(cell.value)
 
     return column_values
-
 
