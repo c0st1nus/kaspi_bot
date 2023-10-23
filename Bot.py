@@ -124,7 +124,7 @@ def product(message, index):
     with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
         userdata = json.load(file)
     if str(message.text) == 'Список товаров':
-        if count_filled_cells(userdata['excel_new_path']) == 0:
+        if count_filled_cells(userdata['excel_new_path']) == []:
             bot.send_message(message.chat.id, 'Вы не еще заполнили не одни товар')
         else:
             answer = ''
