@@ -44,7 +44,7 @@ def start(message):
                         'excel_price_path': f'UsersData/{path}/price_new.xlsx'
                     }
                     json.dump(data2, file)
-                if not Path(f'UsersData/{path}/new.xlsx').is_file():
+                if not Path(f'UsersData/{path}/new.xlsx').is_file(): # проверка наличие таблиц
                     workbook = openpyxl.Workbook()
                     sheet = workbook.active
                     sheet['A1'] = 'SKU'
@@ -68,14 +68,14 @@ def start(message):
                     sheet['K1'] = 'min price'
                     workbook.save(
                         f'UsersData/{path}/price_new.xlsx')  # создаем config.json и 3 эксель файла если их нет #создаем config.json и 3 эксель файла если их нет   #создаем config.json и 3 эксель файла если их нет
-            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True) # вывод стартогого меню
             keyboard.add(types.KeyboardButton('Выйти'), types.KeyboardButton('Добавить данные'),
                          types.KeyboardButton('Мои товары'), types.KeyboardButton('Запустить/Остановить работу бота'))
             bot.send_message(message.chat.id, 'Здравствуйте!', reply_markup=keyboard)
             index = data['loginedUserID'].index(str(message.from_user.id))
             bot.register_next_step_handler(message, menu, index)
         else:
-            keyboard: InlineKeyboardMarkup = types.InlineKeyboardMarkup()
+            keyboard: InlineKeyboardMarkup = types.InlineKeyboardMarkup() # регистрации/авторизация
             keyboard.add(types.InlineKeyboardButton('Зарегистрироваться', callback_data='Reg'),
                          types.InlineKeyboardButton('Авторизироваться', callback_data='Log'))
             bot.send_message(message.chat.id, "Здравствуйте! У вас есть аккаунт или вы здесь впервые?",
@@ -88,7 +88,7 @@ def start(message):
                          reply_markup=keyboard)
 
 
-def productDelete(message, index):
+def productDelete(message, index): # удаления данных продукта из таблицы new.xlsx
     with open('UsersData/Users.json', 'r') as file:
         data = json.load(file)
     with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
@@ -97,7 +97,7 @@ def productDelete(message, index):
     bot.send_message(message.chat.id, 'Товар успешно удален')
 
 
-def productAdd(message, index):
+def productAdd(message, index): #добавление данных товара в таблицу new.xlsx
     with open('UsersData/Users.json', 'r') as file:
         data = json.load(file)
     with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
@@ -118,7 +118,7 @@ def productAdd(message, index):
             bot.send_message(message.chat.id, f'Вы ввели не правильное значение')
 
 
-def product(message, index):
+def product(message, index): # меню "мои товары"
     with open('UsersData/Users.json', 'r') as file:
         data = json.load(file)
     with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
@@ -141,7 +141,7 @@ def product(message, index):
         bot.register_next_step_handler(message, productAdd, index)
 
 
-def dataAdd(message, index):
+def dataAdd(message, index): # добавление логина и пароля от Каспия
     with open('UsersData/Users.json', 'r') as file:
         data = json.load(file)
     with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
@@ -278,7 +278,7 @@ def reg2(message, username):  # регистрация, пароль вводи�
 
 
 @bot.callback_query_handler(func=lambda callback: True)
-def callback_message(callback):
+def callback_message(callback): # обработка нажатия Inline кнопок
     if callback.data == 'Reg':
         bot.send_message(callback.message.chat.id, 'Введите ваш логин')
         bot.register_next_step_handler(callback.message, reg1)
@@ -312,7 +312,7 @@ def randompassword(count):  # генерация пароля
     return sep.join(randm)
 
 
-def articles(excel_path, sheetToAnalyze):
+def articles(excel_path, sheetToAnalyze): # функция выводящая список данных из задоного столбца
     workbook = openpyxl.load_workbook(excel_path)
     sheet = workbook.active
     column_data_a = sheet[sheetToAnalyze]
@@ -326,7 +326,7 @@ def articles(excel_path, sheetToAnalyze):
         return (filled_cells)
 
 
-def count_filled_cells(excel_path):
+def count_filled_cells(excel_path): # вывод тайтла т цены товара
     workbook = openpyxl.load_workbook(excel_path)
     sheet = workbook.active
     column_data_a = sheet['A']
@@ -342,7 +342,7 @@ def count_filled_cells(excel_path):
         return (filled_cells)
 
 
-def add_values_to_column(excel_path, values_to_add, sheetsToAdd):
+def add_values_to_column(excel_path, values_to_add, sheetsToAdd): #добавление данных в таблицу
     workbook = openpyxl.load_workbook(excel_path)
 
     sheet = workbook.active
@@ -354,7 +354,7 @@ def add_values_to_column(excel_path, values_to_add, sheetsToAdd):
     workbook.close()
 
 
-def delete_row_by_value(excel_path, value_to_delete):
+def delete_row_by_value(excel_path, value_to_delete): # удаление данных из таблицы
     workbook = openpyxl.load_workbook(excel_path)
     sheet = workbook.active
 
