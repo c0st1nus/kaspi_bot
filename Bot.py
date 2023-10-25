@@ -3,14 +3,12 @@ import random
 import telebot
 from telebot import types
 from telebot.types import InlineKeyboardMarkup
-import os
 from pathlib import Path
 import openpyxl
-from kaspi.get import request
-from user_agents.random_agnet import get_agent
 from UsersData.Processing import loop
 import UsersData.browser_bot
 import threading
+import os
 
 token = '6932808440:AAGsykujrc6eJ_V-_ULaNOL2afpXqriRbp8'
 
@@ -48,28 +46,13 @@ def start(message):
                     json.dump(data2, file)
                 if not Path(f'UsersData/{path}/new.xlsx').is_file(): # проверка наличие таблиц
                     workbook = openpyxl.Workbook()
-                    sheet = workbook.active
-                    sheet['A1'] = 'SKU'
-                    sheet['B1'] = 'model'
-                    sheet['D1'] = 'price'
-                    sheet['K1'] = 'min price'
                     workbook.save(f'UsersData/{path}/new.xlsx')
                 if not Path(f'UsersData/{path}/old.xlsx').is_file():
                     workbook = openpyxl.Workbook()
-                    sheet = workbook.active
-                    sheet['A1'] = 'id'
-                    sheet['B1'] = 'title'
-                    sheet['G1'] = 'link'
                     workbook.save(f'UsersData/{path}/old.xlsx')
                 if not Path(f'UsersData/{path}/price_new.xlsx').is_file():
                     workbook = openpyxl.Workbook()
-                    sheet = workbook.active
-                    sheet['A1'] = 'SKU'
-                    sheet['B1'] = 'model'
-                    sheet['D1'] = 'price'
-                    sheet['K1'] = 'min price'
-                    workbook.save(
-                        f'UsersData/{path}/price_new.xlsx')  # создаем config.json и 3 эксель файла если их нет #создаем config.json и 3 эксель файла если их нет   #создаем config.json и 3 эксель файла если их нет
+                    workbook.save(f'UsersData/{path}/price_new.xlsx')       # создаем config.json и 3 эксель файла если их нет #создаем config.json и 3 эксель файла если их нет   #создаем config.json и 3 эксель файла если их нет
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True) # вывод стартогого меню
             keyboard.add(types.KeyboardButton('Выйти'), types.KeyboardButton('Добавить данные'),
                          types.KeyboardButton('Мои товары'), types.KeyboardButton('Запустить/Остановить работу бота'))
@@ -98,26 +81,34 @@ def productDelete(message, index): # удаления данных продук�
     delete_row_by_value(userdata['excel_new_path'], message.text)
     bot.send_message(message.chat.id, 'Товар успешно удален')
 
-
+@bot.message_handler(content_types=['document'])
 def productAdd(message, index): #добавление данных товара в таблицу new.xlsx
     with open('UsersData/Users.json', 'r') as file:
         data = json.load(file)
     with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
         userdata = json.load(file)
-    listOfarticles = articles(userdata['excel_new_path'], 'A')
-    if message.text in listOfarticles:
-        bot.send_message(message.chat.id, 'Вы уже добавили этот товар')
+    old_path = userdata["excel_old_path"]
+    new_path = userdata["excel_new_path"]
+    file_info = bot.get_file(message.document.file_id)
+    file = bot.download_file(file_info.file_path)
+    with open(message.document.file_name, 'wb') as new_file:
+        new_file.write(file)
+    if message.document.mime_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+        source_wb = openpyxl.load_workbook(message.document.file_name)
+        source_sheet = source_wb.active
+        new = openpyxl.load_workbook(new_path)
+        new_sheet = new.active
+        old = openpyxl.load_workbook(old_path)
+        old_sheet = old.active
+        for row in source_sheet.iter_rows(values_only=True):
+            new_sheet.append(row)
+            old_sheet.append(row)
+            new.save(f'UsersData/{data["usernames"][index]}/new.xlsx')
+            old.save(f'UsersData/{data["usernames"][index]}/old.xlsx')
+        source_wb.close()
+        bot.send_message(message.chat.id, 'Данные успешно сохранены')
     else:
-        try:
-            agent = get_agent()
-            Reguest = request(message.text, agent)
-            add_values_to_column(userdata['excel_new_path'],
-                                 [message.text, Reguest["title"], Reguest["price"], Reguest["price"]],
-                                 ['A', 'B', 'D', 'K'])
-            add_values_to_column(userdata['excel_old_path'], [message.text, Reguest["title"]], ['A', 'B'])
-            bot.send_message(message.chat.id, f'Товар({Reguest["title"]} - {Reguest["price"]} ₸) добавлен в писок')
-        except:
-            bot.send_message(message.chat.id, f'Вы ввели не правильное значение')
+        bot.send_message(message.chat.id, 'Вы отправили файл некоректного типа')
 
 
 def product(message, index): # меню "мои товары"
@@ -139,7 +130,7 @@ def product(message, index): # меню "мои товары"
         bot.send_message(message.chat.id, 'Напшите артикул товара, который хотите удалить')
         bot.register_next_step_handler(message, productDelete, index)
     elif message.text == 'Добавить товар':
-        bot.send_message(message.chat.id, 'Напшите артикул своего товара')
+        bot.send_message(message.chat.id, 'Отправьте exel таблицу с вашими данными')
         bot.register_next_step_handler(message, productAdd, index)
 
 
@@ -275,6 +266,7 @@ def reg2(message, username):  # регистрация, пароль вводи�
     data['loginedUserID'].append(f'{message.from_user.id}')
     bot.send_message(message.chat.id, f'Регистрация выполнена, ваш логин: {username}, ваш пароль: {password}')
     os.mkdir(f'UsersData/{username}')
+    os.chmod(f'UsersData/{username}', 0o777)
     with open('UsersData/Users.json', 'w') as file:
         json.dump(data, file)
 
@@ -343,19 +335,6 @@ def count_filled_cells(excel_path): # вывод тайтла т цены тов
     else:
         return (filled_cells)
 
-
-def add_values_to_column(excel_path, values_to_add, sheetsToAdd): #добавление данных в таблицу
-    workbook = openpyxl.load_workbook(excel_path)
-
-    sheet = workbook.active
-    column_data_a = sheet[sheetsToAdd[0]]
-    place = str(len(column_data_a) + 1)
-    for i in range(len(values_to_add)):
-        sheet[sheetsToAdd[i] + place] = values_to_add[i]
-    workbook.save(excel_path)
-    workbook.close()
-
-
 def delete_row_by_value(excel_path, value_to_delete): # удаление данных из таблицы
     workbook = openpyxl.load_workbook(excel_path)
     sheet = workbook.active
@@ -365,7 +344,6 @@ def delete_row_by_value(excel_path, value_to_delete): # удаление дан�
             if cell.value == value_to_delete:
                 sheet.delete_rows(cell.row)
                 break
-
     workbook.save(excel_path)
     workbook.close()
 
