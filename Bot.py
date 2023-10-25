@@ -12,7 +12,9 @@ from UsersData.Processing import loop
 import UsersData.browser_bot
 import threading
 
-bot = telebot.TeleBot('6932808440:AAGsykujrc6eJ_V-_ULaNOL2afpXqriRbp8')
+token = '6932808440:AAGsykujrc6eJ_V-_ULaNOL2afpXqriRbp8'
+
+bot = telebot.TeleBot(token)
 
 
 def my_background_function():
