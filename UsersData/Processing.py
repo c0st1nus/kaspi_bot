@@ -13,7 +13,7 @@ def loop():
     if len(users) == 0:
         print(f'Нет активных пользователей')
         print('===============================================')
-        randm = random.randint(10, 50)
+        randm = random.randint(5, 15)
         print(f'Kaspi-Bot: Следующий старт через: {randm} сек.')
         sleep(randm)
     else:
