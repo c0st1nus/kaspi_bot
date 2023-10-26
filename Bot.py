@@ -207,11 +207,22 @@ def reg1(message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(types.KeyboardButton('Сгенерируй пароль'))
     bot.send_message(message.chat.id, 'Отлично, теперь введите пароль пользователя', reply_markup=keyboard)
-    bot.register_next_step_handler(message, reg2)
+    bot.register_next_step_handler(message, reg2, login)
 
-def reg2(message):
+def reg2(message, login):
+    password = None
     if message.text == 'Сгенерируй пароль':
-        
+        password randompassword(8)
+    else:
+        password = message.text
+    with open('UsersData/config.json', 'r') as file:
+        data = json.load(file)
+    data['usernames'].append(login)
+    data['password'].append(password)
+    with open('UsersData/config.json', 'w') as file:
+        json.dump(data, file)
+    bot.send(message.chat.id, 'Данные успешно сохранены')
+    start(message)
 
 def login1(message):  # поиск логина в Users.json
     with open('UsersData/Users.json', 'r') as file:
