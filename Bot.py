@@ -29,48 +29,54 @@ background_thread.start()
 def start(message):
     with open('UsersData/Users.json', 'r') as file:
         data = json.load(file)
-    if data != {"usernames": [], "passwords": [], "loginedUserID": []}:  # проверка на пустой json файл
-        if f'{message.from_user.id}' in data[
-            'loginedUserID']:  # проверка на то, что пользователь ранее уже входил в аккаунт
-            path = str(data["usernames"][data['loginedUserID'].index(
-                str(message.from_user.id))])  # создаем config.json и 3 xlsx файла если их нет
-            if not Path(f'UsersData/{path}/config.json').is_file():
-                with open(f'UsersData/{path}/config.json', 'w') as file:
-                    data2 = {
-                        'Login': None,
-                        'Pass': None,
-                        'excel_new_path': f'UsersData/{path}/new.xlsx',
-                        'excel_old_path': f'UsersData/{path}/old.xlsx',
-                        'excel_price_path': f'UsersData/{path}/price_new.xlsx'
-                    }
-                    json.dump(data2, file)
-                if not Path(f'UsersData/{path}/new.xlsx').is_file(): # проверка наличие таблиц
-                    workbook = openpyxl.Workbook()
-                    workbook.save(f'UsersData/{path}/new.xlsx')
-                if not Path(f'UsersData/{path}/old.xlsx').is_file():
-                    workbook = openpyxl.Workbook()
-                    workbook.save(f'UsersData/{path}/old.xlsx')
-                if not Path(f'UsersData/{path}/price_new.xlsx').is_file():
-                    workbook = openpyxl.Workbook()
-                    workbook.save(f'UsersData/{path}/price_new.xlsx')       # создаем config.json и 3 эксель файла если их нет #создаем config.json и 3 эксель файла если их нет   #создаем config.json и 3 эксель файла если их нет
-            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True) # вывод стартогого меню
-            keyboard.add(types.KeyboardButton('Выйти'), types.KeyboardButton('Добавить данные'),
-                         types.KeyboardButton('Мои товары'), types.KeyboardButton('Запустить/Остановить работу бота'))
-            bot.send_message(message.chat.id, 'Здравствуйте!', reply_markup=keyboard)
-            index = data['loginedUserID'].index(str(message.from_user.id))
-            bot.register_next_step_handler(message, menu, index)
+    if(message.from_user.id != admin):
+        if data != {"usernames": [], "passwords": [], "loginedUserID": []}:  # проверка на пустой json файл
+            if f'{message.from_user.id}' in data[
+                'loginedUserID']:  # проверка на то, что пользователь ранее уже входил в аккаунт
+                path = str(data["usernames"][data['loginedUserID'].index(
+                    str(message.from_user.id))])  # создаем config.json и 3 xlsx файла если их нет
+                if not Path(f'UsersData/{path}/config.json').is_file():
+                    with open(f'UsersData/{path}/config.json', 'w') as file:
+                        data2 = {
+                            'Login': None,
+                            'Pass': None,
+                            'excel_new_path': f'UsersData/{path}/new.xlsx',
+                            'excel_old_path': f'UsersData/{path}/old.xlsx',
+                            'excel_price_path': f'UsersData/{path}/price_new.xlsx'
+                        }
+                        json.dump(data2, file)
+                    if not Path(f'UsersData/{path}/new.xlsx').is_file(): # проверка наличие таблиц
+                        workbook = openpyxl.Workbook()
+                        workbook.save(f'UsersData/{path}/new.xlsx')
+                    if not Path(f'UsersData/{path}/old.xlsx').is_file():
+                        workbook = openpyxl.Workbook()
+                        workbook.save(f'UsersData/{path}/old.xlsx')
+                    if not Path(f'UsersData/{path}/price_new.xlsx').is_file():
+                        workbook = openpyxl.Workbook()
+                        workbook.save(f'UsersData/{path}/price_new.xlsx')       # создаем config.json и 3 эксель файла если их нет #создаем config.json и 3 эксель файла если их нет   #создаем config.json и 3 эксель файла если их нет
+                keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True) # вывод стартогого меню
+                keyboard.add(types.KeyboardButton('Выйти'), types.KeyboardButton('Добавить данные'),
+                             types.KeyboardButton('Мои товары'), types.KeyboardButton('Как пользоваться ботом?'))
+                bot.send_message(message.chat.id, 'Вы зашли в главное меню', reply_markup=keyboard)
+                index = data['loginedUserID'].index(str(message.from_user.id))
+                bot.register_next_step_handler(message, menu, index)
+            else:
+                keyboard: InlineKeyboardMarkup = types.InlineKeyboardMarkup() # регистрации/авторизация
+                keyboard.add(types.InlineKeyboardButton('Зарегистрироваться', callback_data='Reg'),
+                             types.InlineKeyboardButton('Авторизироваться', callback_data='Log'))
+                bot.send_message(message.chat.id, "Здравствуйте! У вас есть аккаунт или вы здесь впервые?",
+                                 reply_markup=keyboard)
         else:
-            keyboard: InlineKeyboardMarkup = types.InlineKeyboardMarkup() # регистрации/авторизация
-            keyboard.add(types.InlineKeyboardButton('Зарегистрироваться', callback_data='Reg'),
-                         types.InlineKeyboardButton('Авторизироваться', callback_data='Log'))
-            bot.send_message(message.chat.id, "Здравствуйте! У вас есть аккаунт или вы здесь впервые?",
+            keyboard = types.InlineKeyboardMarkup()
+            keyboard.add(types.InlineKeyboardButton('Авторизироваться', callback_data='Log'))
+            bot.send_message(message.chat.id, "Здравствуйте! Зайдите в ваш аккаунт",
                              reply_markup=keyboard)
     else:
-        keyboard = types.InlineKeyboardMarkup()
-        keyboard.add(types.InlineKeyboardButton('Зарегистрироваться', callback_data='Reg'),
-                     types.InlineKeyboardButton('Авторизироваться', callback_data='Log'))
-        bot.send_message(message.chat.id, "Здравствуйте! У вас есть аккаунт или вы здесь впервые?",
-                         reply_markup=keyboard)
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        keyboard.row(types.KeyboardButton('Добавить пользователя'), types.KeyboardButton('Удалить пользователя'))
+        keyboard.row(types.KeyboardButton('Список пользователей'))
+        bot.send_message(message.chat.id, 'Вы зашли в главное меню', reply_markup=keyboard)
+        start(message)
 
 
 def productDelete(message, index): # удаления данных продукта из таблицы new.xlsx
@@ -80,6 +86,7 @@ def productDelete(message, index): # удаления данных продук�
         userdata = json.load(file)
     delete_row_by_value(userdata['excel_new_path'], message.text)
     bot.send_message(message.chat.id, 'Товар успешно удален')
+    start(message)
 
 @bot.message_handler(content_types=['document'])
 def productAdd(message, index): #добавление данных товара в таблицу new.xlsx
@@ -109,7 +116,8 @@ def productAdd(message, index): #добавление данных товара 
         bot.send_message(message.chat.id, 'Данные успешно сохранены')
     else:
         bot.send_message(message.chat.id, 'Вы отправили файл некоректного типа')
-
+    start(message)
+    
 
 def product(message, index): # меню "мои товары"
     with open('UsersData/Users.json', 'r') as file:
@@ -143,6 +151,7 @@ def dataAdd(message, index): # добавление логина и пароля
     if len(data2) != 2:
         bot.send_message(message.chat.id,
                          'Вы допустили ошибку при вводе данных, логин и пароль должны быть в одном сообщении через запятную(логин, пароль)')
+        start(message)
     else:
         bot.send_message(message.chat.id, 'Бот пытается войти в ваш акаунт')
         if UsersData.browser_bot.try_to_sign_in_upload_kaspi(data2[0], data2[1]):
@@ -151,6 +160,7 @@ def dataAdd(message, index): # добавление логина и пароля
             userdata['Pass'] = data2[1]
             with open(f'UsersData/{data["usernames"][index]}/config.json', 'w') as file:
                 json.dump(userdata, file)
+            bot.register_next_step_handler(message, start)
         else:
             bot.send_message(message.chat.id, 'Произошла ошибка, попробуйте еще раз')
             bot.send_message(message.chat.id,
@@ -158,28 +168,11 @@ def dataAdd(message, index): # добавление логина и пароля
             bot.register_next_step_handler(message, dataAdd, index)
 
 
-def menu(message, index):  # основное меню бота
+def menu(message, index = None):  # основное меню бота
     with open('UsersData/Users.json', 'r') as file:
         data = json.load(file)
     if message.text == '/start':
         bot.register_next_step_handler(message, start)
-    elif message.text == 'Запустить/Остановить работу бота':
-        with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
-            data2 = json.load(file)
-        with open('UsersData/ReadyUsers.json', 'r') as file:
-            data3 = json.load(file)
-        if data['usernames'][index] not in data3['usernames']:
-            if count_filled_cells(data2['excel_new_path']) != [] and data2['Login'] is not None:
-                data3['usernames'].append(data['usernames'][index])
-                with open('UsersData/ReadyUsers.json', 'w') as file:
-                    json.dump(data3, file)
-                bot.send_message(message.chat.id, 'Бот запущен')
-            else:
-                bot.send_message(message.chat.id, 'Не настроенны данные учетной записи либо не добавлены товары')
-        else:
-            data["usernames"].remove(data["usernames"][index])
-            bot.send_message(message.chat.id, 'Бот отключен')
-
     elif message.text == 'Добавить данные':
         with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
             userdata = json.load(file)
@@ -233,49 +226,11 @@ def login2(message, index):  # проверка пароля и сохранен
         with open('UsersData/Users.json', 'w') as file:
             json.dump(data, file)
         bot.send_message(message.chat.id, 'Вход выполнен')
-
-
-def reg1(message):  # регистрация, логин
-    with open('UsersData/Users.json', 'r') as file:
-        data = json.load(file)
-    if message.text == '/start':
         bot.register_next_step_handler(message, start)
-    elif message.text.lower() not in data['usernames']:
-        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        keyboard.add(types.KeyboardButton('Сгенеренруй пароль из 8 чисел'))
-        bot.send_message(message.chat.id, 'Введите пароль: ', reply_markup=keyboard)
-        bot.register_next_step_handler(message, reg2, message.text)
-    else:
-        bot.send_message(message.chat.id, 'Пользователь с таким логином уже есть, попробуйте другой')
-        bot.send_message(message.chat.id, 'Введите ваш логин')
-        bot.register_next_step_handler(message, reg1)
-
-
-def reg2(message, username):  # регистрация, пароль вводится либо вручную либо бот генерирует случайный 8 значный пароль
-    with open('UsersData/Users.json', 'r') as file:
-        data = json.load(file)
-    if message.text == '/start':
-        bot.register_next_step_handler(message, start)
-    elif message.text == 'Сгенеренруй пароль из 8 чисел':
-        global password
-        password = randompassword(8)
-    else:
-        password = message.text
-    data['usernames'].append(username.lower())
-    data['passwords'].append(password)
-    data['loginedUserID'].append(f'{message.from_user.id}')
-    bot.send_message(message.chat.id, f'Регистрация выполнена, ваш логин: {username}, ваш пароль: {password}')
-    os.mkdir(f'UsersData/{username}')
-    os.chmod(f'UsersData/{username}', 0o777)
-    with open('UsersData/Users.json', 'w') as file:
-        json.dump(data, file)
-
+        
 
 @bot.callback_query_handler(func=lambda callback: True)
 def callback_message(callback): # обработка нажатия Inline кнопок
-    if callback.data == 'Reg':
-        bot.send_message(callback.message.chat.id, 'Введите ваш логин')
-        bot.register_next_step_handler(callback.message, reg1)
     elif callback.data == 'Log':
         bot.send_message(callback.message.chat.id, 'Введите ваш логин')
         bot.register_next_step_handler(callback.message, login1)
