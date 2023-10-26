@@ -199,7 +199,19 @@ def menu(message, index = None):  # основное меню бота
         bot.send_message(message.chat.id, 'Выход выполнен')
         with open('UsersData/Users.json', 'w') as file:
             json.dump(data, file)
+    elif message.text == 'Добавить пользователя':
+        
 
+def reg1(message):
+    login = message.text
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(types.KeyboardButton('Сгенерируй пароль'))
+    bot.send_message(message.chat.id, 'Отлично, теперь введите пароль пользователя', reply_markup=keyboard)
+    bot.register_next_step_handler(message, reg2)
+
+def reg2(message):
+    if message.text == 'Сгенерируй пароль':
+        
 
 def login1(message):  # поиск логина в Users.json
     with open('UsersData/Users.json', 'r') as file:
