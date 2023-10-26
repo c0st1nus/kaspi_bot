@@ -10,7 +10,7 @@ import UsersData.browser_bot
 import threading
 import os
 
-token = '6932808440:AAGsykujrc6eJ_V-_ULaNOL2afpXqriRbp8'
+token = '6932808440:T6QsfUYKiEB8k46JZBkXyNwSVqK0'
 
 bot = telebot.TeleBot(token)
 
@@ -200,7 +200,7 @@ def menu(message, index = None):  # основное меню бота
         with open('UsersData/Users.json', 'w') as file:
             json.dump(data, file)
     elif message.text == 'Добавить пользователя':
-        
+        pass
 
 def reg1(message):
     login = message.text
@@ -212,7 +212,7 @@ def reg1(message):
 def reg2(message, login):
     password = None
     if message.text == 'Сгенерируй пароль':
-        password randompassword(8)
+        password = randompassword(8)
     else:
         password = message.text
     with open('UsersData/config.json', 'r') as file:
@@ -254,7 +254,7 @@ def login2(message, index):  # проверка пароля и сохранен
 
 @bot.callback_query_handler(func=lambda callback: True)
 def callback_message(callback): # обработка нажатия Inline кнопок
-    elif callback.data == 'Log':
+    if callback.data == 'Log':
         bot.send_message(callback.message.chat.id, 'Введите ваш логин')
         bot.register_next_step_handler(callback.message, login1)
     elif callback.data == 'changeKaspiData':
