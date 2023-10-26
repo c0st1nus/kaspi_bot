@@ -215,6 +215,23 @@ def menu(message, index=None):  # основное меню бота
         keyboard.row(types.KeyboardButton('Добавить товар'), types.KeyboardButton('Удалить товар'))
         bot.send_message(message.chat.id, 'Меню "Мои товары"', reply_markup=keyboard)
         bot.register_next_step_handler(message, product, index)
+    elif message.text == 'Как пользоваться ботом?':
+        with open('Files/instruction.txt', 'rb') as file:
+            text = file.read()
+        photo = open('Files/picture.jpg', 'rb')
+        bot.send_photo(message.chat.id, photo, text)
+        sleep(5)
+        start(message)
+    elif message.text == 'Список пользователей':
+        if data:
+            text = ''
+            for i in range(len(data['usernames'])):
+                text += data['usernames'][i] + ':' + data['passwords'][i] + '\n'
+            bot.send_message(message.chat.id, text)
+        else:
+            bot.send_message(message.chat.id, 'Еще не зарегистрированно ни одного пользователя')
+        sleep(3)
+        start(message)
     elif message.text == 'Выйти':
         data['loginedUserID'][data['loginedUserID'].index(f'{message.from_user.id}')] = None
         bot.send_message(message.chat.id, 'Выход выполнен')
