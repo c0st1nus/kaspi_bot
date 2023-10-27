@@ -56,10 +56,11 @@ def sign_in_upload_kaspi(username):
     with open(f'UsersData/{username}/config.json') as file:
         data = json.load(file)
     option = webdriver.FirefoxOptions()
-
     option.add_argument("--headless")
+
     with closing(webdriver.Firefox(options=option)) as browser:
         browser.get("https://kaspi.kz/mc/")
+
         sleep(5)
         try:
 
@@ -97,7 +98,7 @@ def sign_in_upload_kaspi(username):
         except:
             print('ERROR | Kaspi-Bot: Станица для авторизации не найдена !')
         browser.get("https://kaspi.kz/mc/#/price-list")
-
+        screen = browser.page_source
         sleep(5)
 
         # Скролл
@@ -115,7 +116,7 @@ def sign_in_upload_kaspi(username):
 
         sleep(2)
 
-        upload_button_xpath = '//*[@id="app"]/div/section/div/div[2]/div/section[2]/div/section/div[1]/button/span'
+        upload_button_xpath = '//*[@id="app"]/div/section/div/div[2]/div/section/div/section/div[1]/button/span'
         browser.find_element('xpath', upload_button_xpath).click()
 
         sleep(5)
