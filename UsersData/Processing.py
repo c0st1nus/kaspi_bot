@@ -27,7 +27,7 @@ def loop():
 
             sign_in_upload_kaspi(username=i)
             sleep(2)
-        randm = random.randint(10, 50)
+        randm = random.randint(10, 30)
         print(f'Kaspi-Bot: Следующий старт через: {randm} сек.')
         sleep(randm)
 def basic_bot_operation(username):
@@ -67,8 +67,11 @@ def basic_bot_operation(username):
 
 def handler(article, username):
     global_user_agent = get_agent()
-
-    result = request(id_id=article, user_agent=global_user_agent)
+    try:
+        result = request(id_id=article, user_agent=global_user_agent)
+    except:
+        print('Kaspi-bot: не удалось подключить соединение, удаленный хост принудительно разорвал существующее подключение, ожидаю 20 секунд')
+        sleep(20)
 
     if result == 'error':
         print('Kaspi-Bot: Не удалось получить цену конкурентов.')
