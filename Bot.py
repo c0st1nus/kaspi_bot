@@ -11,10 +11,10 @@ import threading
 from time import sleep
 import os
 
-token = '6932808440:AAEndo-T6QsfUYKiEB8k46JZBkXyNwSVqK0'
+token = '6932808440:AAEEkm4EZLNRZLvm4pcvxslgvP1hJNCnYN8'
 
 bot = telebot.TeleBot(token)
-admin = 12393982172
+admin = 123939821
 def my_background_function():
     while True:
         loop()
@@ -171,19 +171,19 @@ def dataAdd(message, index): # добавление логина и пароля
             userdata['Pass'] = data2[1]
             with open(f'UsersData/{data["usernames"][index]}/config.json', 'w') as file:
                 json.dump(userdata, file)
-            bot.register_next_step_handler(message, start)
+            if count_filled_cells(userdata['excel_new_path']):
+                with open('UsersData/ReadyUsers.json', 'r') as file:
+                    users = json.load(file)
+                users['usernames'].append(data["usernames"][index])
+                with open('UsersData/ReadyUsers.json', 'w') as file:
+                    json.dump(users, file)
+                bot.send_message(message, 'Загрузка данных окончена, бот начал работу')
+            start(message)
         else:
             bot.send_message(message.chat.id, 'Произошла ошибка, попробуйте еще раз')
             bot.send_message(message.chat.id,
                              'Введите логин и пароль от https://kaspi.kz/mc в ОДНОМ сообщении через запятую(логин, пароль)')
             bot.register_next_step_handler(message, dataAdd, index)
-        if count_filled_cells(userdata['excel_new_path']):
-            with open('UsersData/ReadyUsers.json', 'r') as file:
-                users = json.load(file)
-            users['usernames'].append(data["usernames"][index])
-            with open('UsersData/ReadyUsers.json', 'w') as file:
-                json.dump(users, file)
-            bot.send_message(message, 'Загрузка данных окончена, бот начал работу')
 
 
 def menu(message, index=None):  # основное меню бота
