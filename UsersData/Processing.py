@@ -27,7 +27,7 @@ def loop():
 
             sign_in_upload_kaspi(username=i)
             sleep(2)
-        randm = random.randint(10, 30)
+        randm = random.randint(5, 15)
         print(f'Kaspi-Bot: Следующий старт через: {randm} сек.')
         sleep(randm)
 def basic_bot_operation(username):
@@ -35,7 +35,7 @@ def basic_bot_operation(username):
     data = []
     for lst in lists:
         filtered_lst = [item for item in lst if item is not None]
-        data.append(filtered_lst)
+        data.append(filtered_lst[1:])
 
     new_SKU = data[0]
     # new_price = data[1]
@@ -45,7 +45,7 @@ def basic_bot_operation(username):
     # old_link = data[4]
 
     cycle = 0
-    colum_range = len(new_SKU) - 1
+    colum_range = len(new_SKU) -1
 
     print(f'Kaspi-Bot: В эксель файле {colum_range} артикулов.')
 
@@ -67,11 +67,8 @@ def basic_bot_operation(username):
 
 def handler(article, username):
     global_user_agent = get_agent()
-    try:
-        result = request(id_id=article, user_agent=global_user_agent)
-    except:
-        print('Kaspi-bot: не удалось подключить соединение, удаленный хост принудительно разорвал существующее подключение, ожидаю 20 секунд')
-        sleep(20)
+
+    result = request(id_id=article, user_agent=global_user_agent)
 
     if result == 'error':
         print('Kaspi-Bot: Не удалось получить цену конкурентов.')
