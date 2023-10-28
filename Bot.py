@@ -14,7 +14,7 @@ import os
 token = '6932808440:AAEEkm4EZLNRZLvm4pcvxslgvP1hJNCnYN8'
 
 bot = telebot.TeleBot(token)
-admin = 123939821
+admin = 1239398217
 def my_background_function():
     while True:
         loop()
@@ -76,8 +76,30 @@ def start(message):
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.row(types.KeyboardButton('Добавить пользователя'), types.KeyboardButton('Удалить пользователя'))
         keyboard.row(types.KeyboardButton('Список пользователей'))
+        keyboard.add(types.KeyboardButton('Добавить данные'),
+                     types.KeyboardButton('Мои товары'), types.KeyboardButton('Как пользоваться ботом?'))
+
+        if not Path('UsersData/admin/config.json').is_file():
+            with open('UsersData/admin/config.json', 'w+') as file:
+                data2 = {
+                    'Login': None,
+                    'Pass': None,
+                    'excel_new_path': 'UsersData/admin/new.xlsx',
+                    'excel_old_path': 'UsersData/admin/old.xlsx',
+                    'excel_price_path': 'UsersData/admin/price_new.xlsx'
+                }
+                json.dump(data2, file)
+            if not Path(f'UsersData/admin/new.xlsx').is_file():  # проверка наличие таблиц
+                workbook = openpyxl.Workbook()
+                workbook.save(f'UsersData/admin/new.xlsx')
+            if not Path(f'UsersData/admin/old.xlsx').is_file():
+                workbook = openpyxl.Workbook()
+                workbook.save(f'UsersData/admin/old.xlsx')
+            if not Path(f'UsersData/admin/price_new.xlsx').is_file():
+                workbook = openpyxl.Workbook()
+                workbook.save(f'UsersData/admin/price_new.xlsx')
         bot.send_message(message.chat.id, 'Вы зашли в главное меню', reply_markup=keyboard)
-        bot.register_next_step_handler(message, menu)
+        bot.register_next_step_handler(message, menu, 0)
 
 
 def productDelete(message, index): # удаления данных продукта из таблицы new.xlsx
