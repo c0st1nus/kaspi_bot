@@ -1,4 +1,4 @@
-from openpyxl import load_workbook, open, Workbook
+from openpyxl import load_workbook, Workbook
 excel_new_path = None
 excel_old_path = None
 excel_price_path = None
@@ -62,20 +62,22 @@ def excel_actions(action, search_value=None, web_price=None, username=None):
 
         else:
             print('Kaspi-Bot: Обновление цены не требуется.')
-
-
-
-
-        wb.close()
+        wb.save(excel_new_path)
 
 
     elif action == 'cut':
         wb = load_workbook(filename=excel_new_path, data_only=True)
         sheet = wb.active
-
         sheet.delete_cols(11, 14)
-        print('Kaspi-Bot: Таблица полностю обработана.')
+        for i in range(2, sheet.max_row + 1):
+            cell = sheet.cell(row=i, column=4)
+            if cell.value is not None:
+                try:
+                    cell.value = int(cell.value)
+                except (ValueError, TypeError):
+                    pass
         wb.save(excel_price_path)
+        print('Kaspi-Bot: Таблица полностю обработана.')
 
 # Достает столбцы
 def select_loop(name, colum):
