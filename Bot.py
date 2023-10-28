@@ -14,7 +14,7 @@ import os
 token = '6932808440:AAEEkm4EZLNRZLvm4pcvxslgvP1hJNCnYN8'
 
 bot = telebot.TeleBot(token)
-admin = 1239398217
+admin = 12393982172
 def my_background_function():
     while True:
         loop()
@@ -167,8 +167,13 @@ def product(message, index): # меню "мои товары"
                     answer += str(result[i]) + '\n'
             bot.send_message(message.chat.id, text=answer)
     elif message.text == 'Удалить товар':
-        bot.send_message(message.chat.id, 'Напшите артикул товара, который хотите удалить')
-        bot.register_next_step_handler(message, productDelete, index)
+        if count_filled_cells(userdata['excel_new_path']) == []:
+            bot.send_message(message.chat.id, 'Вы не еще заполнили не одни товар')
+            sleep(1)
+            start(message)
+        else:
+            bot.send_message(message.chat.id, 'Напшите артикул товара, который хотите удалить')
+            bot.register_next_step_handler(message, productDelete, index)
     elif message.text == 'Добавить товар':
         bot.send_message(message.chat.id, 'Отправьте exel таблицу с вашими данными')
         bot.register_next_step_handler(message, productAdd, index)
