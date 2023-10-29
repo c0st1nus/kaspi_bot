@@ -65,19 +65,26 @@ def excel_actions(action, search_value=None, web_price=None, username=None):
         wb.save(excel_new_path)
 
 
+
     elif action == 'cut':
         wb = load_workbook(filename=excel_new_path, data_only=True)
         sheet = wb.active
         sheet.delete_cols(11, 14)
-        for i in range(2, sheet.max_row + 1):
+        updated_values = []
+        i = 2
+        while i <= sheet.max_row:
             cell = sheet.cell(row=i, column=4)
-            if cell.value is not None:
-                try:
+            try:
+                if sheet.cell(row=i, column=1).value not in updated_values:
                     cell.value = int(cell.value)
-                except (ValueError, TypeError):
-                    pass
+                    updated_values.append(sheet.cell(row=i, column=1).value)
+                    i += 1
+                else:
+                    sheet.delete_rows(i, amount=1)
+            except:
+                sheet.delete_rows(i, amount=1)
         wb.save(excel_price_path)
-        print('Kaspi-Bot: Таблица полностю обработана.')
+        print('Kaspi-Bot: Таблица полностью обработана.')
 
 # Достает столбцы
 def select_loop(name, colum):
