@@ -11,10 +11,10 @@ import threading
 from time import sleep
 import os
 
-token = '6932808440:AAHZF-iXcPhY58CFZ0J3d3pUdgt7je7n7S4'
+token = ВАШ API
 
 bot = telebot.TeleBot(token)
-admin = 1239398217
+admin = ВАШ ID
 def my_background_function():
     while True:
         loop()
