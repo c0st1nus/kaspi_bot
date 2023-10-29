@@ -11,10 +11,10 @@ import threading
 from time import sleep
 import os
 
-token = ВАШ ТОКЕН
+token = '6932808440:AAHZF-iXcPhY58CFZ0J3d3pUdgt7je7n7S4'
 
 bot = telebot.TeleBot(token)
-admin = ВАШ АЙДИ
+admin = 1239398217
 def my_background_function():
     while True:
         loop()
@@ -33,45 +33,38 @@ def start(message):
         except:
             data = None
     if message.from_user.id != admin:
-        if data != {"usernames": [], "passwords": [], "loginedUserID": []} or data != None:  # проверка на пустой json файл
-            if f'{message.from_user.id}' in data['loginedUserID']:  # проверка на то, что пользователь ранее уже входил в аккаунт
-                path = str(data["usernames"][data['loginedUserID'].index(
-                    str(message.from_user.id))])  # создаем config.json и 3 xlsx файла если их нет
-                if not Path(f'UsersData/{path}/config.json').is_file():
-                    with open(f'UsersData/{path}/config.json', 'w+') as file:
-                        data2 = {
-                            'Login': None,
-                            'Pass': None,
-                            'excel_new_path': f'UsersData/{path}/new.xlsx',
-                            'excel_old_path': f'UsersData/{path}/old.xlsx',
-                            'excel_price_path': f'UsersData/{path}/price_new.xlsx'
-                        }
-                        json.dump(data2, file)
-                    if not Path(f'UsersData/{path}/new.xlsx').is_file(): # проверка наличие таблиц
-                        workbook = openpyxl.Workbook()
-                        workbook.save(f'UsersData/{path}/new.xlsx')
-                    if not Path(f'UsersData/{path}/old.xlsx').is_file():
-                        workbook = openpyxl.Workbook()
-                        workbook.save(f'UsersData/{path}/old.xlsx')
-                    if not Path(f'UsersData/{path}/price_new.xlsx').is_file():
-                        workbook = openpyxl.Workbook()
-                        workbook.save(f'UsersData/{path}/price_new.xlsx')       # создаем config.json и 3 эксель файла если их нет #создаем config.json и 3 эксель файла если их нет   #создаем config.json и 3 эксель файла если их нет
-                keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True) # вывод стартогого меню
-                keyboard.add(types.KeyboardButton('Выйти'), types.KeyboardButton('Добавить данные'),
-                             types.KeyboardButton('Мои товары'), types.KeyboardButton('Как пользоваться ботом?'))
-                bot.send_message(message.chat.id, 'Вы зашли в главное меню', reply_markup=keyboard)
-                index = data['loginedUserID'].index(str(message.from_user.id))
-                bot.register_next_step_handler(message, menu, index)
-            else:
-                keyboard: InlineKeyboardMarkup = types.InlineKeyboardMarkup() # регистрации/авторизация
-                keyboard.add(types.InlineKeyboardButton('Авторизироваться', callback_data='Log'))
-                bot.send_message(message.chat.id, "Здравствуйте! У вас есть аккаунт или вы здесь впервые?",
-                                 reply_markup=keyboard)
+        if message.from_user.id in data['loginedUserID']:  # проверка на то, что пользователь ранее уже входил в аккаунт
+            path = str(data["usernames"][data['loginedUserID'].index(message.from_user.id)])
+            if not Path(f'UsersData/{path}/config.json').is_file():
+                with open(f'UsersData/{path}/config.json', 'w+') as file:
+                    data2 = {
+                        'Login': None,
+                        'Pass': None,
+                        'excel_new_path': f'UsersData/{path}/new.xlsx',
+                        'excel_old_path': f'UsersData/{path}/old.xlsx',
+                        'excel_price_path': f'UsersData/{path}/price_new.xlsx'
+                    }
+                    json.dump(data2, file)
+                if not Path(f'UsersData/{path}/new.xlsx').is_file(): # проверка наличие таблиц
+                    workbook = openpyxl.Workbook()
+                    workbook.save(f'UsersData/{path}/new.xlsx')
+                if not Path(f'UsersData/{path}/old.xlsx').is_file():
+                    workbook = openpyxl.Workbook()
+                    workbook.save(f'UsersData/{path}/old.xlsx')
+                if not Path(f'UsersData/{path}/price_new.xlsx').is_file():
+                    workbook = openpyxl.Workbook()
+                    workbook.save(f'UsersData/{path}/price_new.xlsx')       # создаем config.json и 3 эксель файла если их нет #создаем config.json и 3 эксель файла если их нет   #создаем config.json и 3 эксель файла если их нет
+            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True) # вывод стартогого меню
+            keyboard.add(types.KeyboardButton('Выйти'), types.KeyboardButton('Добавить данные'),
+                         types.KeyboardButton('Мои товары'), types.KeyboardButton('Как пользоваться ботом?'), types.KeyboardButton('Запустить/остановить бот'))
+            bot.send_message(message.chat.id, 'Вы зашли в главное меню', reply_markup=keyboard)
+            index = data['loginedUserID'].index(message.from_user.id)
+            bot.register_next_step_handler(message, menu, index)
         else:
-            keyboard = types.InlineKeyboardMarkup()
+            keyboard: InlineKeyboardMarkup = types.InlineKeyboardMarkup() # регистрации/авторизация
             keyboard.add(types.InlineKeyboardButton('Авторизироваться', callback_data='Log'))
-            bot.send_message(message.chat.id, "Здравствуйте! Зайдите в ваш аккаунт",
-                             reply_markup=keyboard)
+            bot.send_message(message.chat.id, "Здравствуйте! У вас есть аккаунт или вы здесь впервые?",
+                                 reply_markup=keyboard)
     else:
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.row(types.KeyboardButton('Добавить пользователя'), types.KeyboardButton('Удалить пользователя'), types.KeyboardButton('Остановить/Запустить бот для пользователя'))
@@ -214,26 +207,52 @@ def dataAdd(message, index): # добавление логина и пароля
                              'Введите логин и пароль от https://kaspi.kz/mc в ОДНОМ сообщении через запятую(логин, пароль)')
             bot.register_next_step_handler(message, dataAdd, index)
 def stop_start(message):
-    with open('UsersData/Users.json', 'r') as file:
-        Fulldata = json.load(file)
-    if message.text in Fulldata['usernames']:
-        with open('UsersData/ReadyUsers.json', 'r') as file:
-            data = json.load(file)
-        if message.text in data['usernames']:
-            index = data['usernames'].index(message.text)
-            data['usernames'].pop(index)
-            bot.send_message(message.chat.id, f'Бот для остановлен для пользователя {message.text}')
+    if message.from_user.id == admin:
+        with open('UsersData/Users.json', 'r') as file:
+            Fulldata = json.load(file)
+        if message.text in Fulldata['usernames']:
+            with open('UsersData/ReadyUsers.json', 'r') as file:
+                data = json.load(file)
+            if message.text in data['usernames']:
+                index = data['usernames'].index(message.text)
+                data['usernames'].pop(index)
+                bot.send_message(message.chat.id, f'Бот для остановлен для пользователя {message.text}')
+            else:
+                with open(f'UsersData/{message.text}/config.json', 'r') as file:
+                    userData = json.load(file)
+                if count_filled_cells(userData['excel_new_path']) != [] and userData['Login'] != None:
+                    data['usernames'].append(message.text)
+                    bot.send_message(message.chat.id, f'Бот для запущен для пользователя {message.text}')
+            with open('UsersData/ReadyUsers.json', 'w') as file:
+                json.dump(data, file)
+            sleep(1)
+            start(message)
         else:
-            data['usernames'].append(message.text)
-            bot.send_message(message.chat.id, f'Бот для запущен для пользователя {message.text}')
-        with open('UsersData/ReadyUsers.json', 'w') as file:
-            json.dump(data, file)
-        sleep(1)
-        start(message)
+            bot.send_message(message.chat.id, 'Данный пользователь не существует')
+            sleep(1)
+            start(message)
     else:
-        bot.send_message(message.chat.id, 'Данный пользователь не существует')
+        with open('UsersData/Users.json', 'r') as file:
+            data = json.load(file)
+        index = data['loginedUserID'].index(message.from_user.id)
+        with open(f'UsersData/{data["usernames"][index]}/config.json') as file:
+            userData = json.load(file)
+        with open('UsersData/ReadyUsers.json', 'r') as file:
+            ready = json.load(file)
+        if data["usernames"][index] in ready:
+            ready['usernames'].pop(index)
+            bot.send_message(message.chat.id, f'Бот остановлен')
+        else:
+            if count_filled_cells(userData['excel_new_path']) and userData['Login'] != None:
+                ready["usernames"].append(data["usernames"][index])
+                bot.send_message(message.chat.id, f'Бот запущен')
+            else:
+                bot.send_message(message.chat.id, f'У вас не до конца заполнены данные')
+        with open('UsersData/ReadyUsers.json', 'w') as file:
+            json.dump(ready, file)
         sleep(1)
         start(message)
+
 def menu(message, index=None):  # основное меню бота
     try:
         with open('UsersData/Users.json', 'r') as file:
@@ -243,6 +262,8 @@ def menu(message, index=None):  # основное меню бота
                 data = None
         if message.text == '/start':
             bot.register_next_step_handler(message, start)
+        elif message.text == 'Запустить/остановить бот':
+            stop_start(message)
         elif message.text == 'Добавить данные':
             with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
                 userdata = json.load(file)
@@ -365,11 +386,11 @@ def login2(message, index):  # проверка пароля и сохранен
         bot.register_next_step_handler(message, start)
     elif message.text == data['passwords'][index]:
         try:
-            data['loginedUserID'][index] = str(message.from_user.id)
+            data['loginedUserID'][index] = message.from_user.id
             with open('UsersData/Users.json', 'w') as file:
                 json.dump(data, file)
         except:
-            data['loginedUserID'].append(str(message.from_user.id))
+            data['loginedUserID'].append(message.from_user.id)
             with open('UsersData/Users.json', 'w') as file:
                 json.dump(data, file)
         bot.send_message(message.chat.id, 'Вход выполнен')
