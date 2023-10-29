@@ -11,10 +11,10 @@ import threading
 from time import sleep
 import os
 
-token = '6932808440:AAEEkm4EZLNRZLvm4pcvxslgvP1hJNCnYN8'
+token = ВАШ ТОКЕН
 
 bot = telebot.TeleBot(token)
-admin = 12393982172
+admin = ВАШ АЙДИ
 def my_background_function():
     while True:
         loop()
@@ -74,11 +74,8 @@ def start(message):
                              reply_markup=keyboard)
     else:
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        keyboard.row(types.KeyboardButton('Добавить пользователя'), types.KeyboardButton('Удалить пользователя'))
-        keyboard.row(types.KeyboardButton('Список пользователей'))
-        keyboard.add(types.KeyboardButton('Добавить данные'),
-                     types.KeyboardButton('Мои товары'), types.KeyboardButton('Как пользоваться ботом?'))
-
+        keyboard.row(types.KeyboardButton('Добавить пользователя'), types.KeyboardButton('Удалить пользователя'), types.KeyboardButton('Остановить/Запустить бот для пользователя'))
+        keyboard.row(types.KeyboardButton('Список пользователей'), types.KeyboardButton('Добавить данные'), types.KeyboardButton('Мои товары'))
         if not Path('UsersData/admin/config.json').is_file():
             with open('UsersData/admin/config.json', 'w+') as file:
                 data2 = {
@@ -114,39 +111,44 @@ def productDelete(message, index): # удаления данных продук�
 
 @bot.message_handler(content_types=['document'])
 def productAdd(message, index): #добавление данных товара в таблицу new.xlsx
-    with open('UsersData/Users.json', 'r') as file:
-        data = json.load(file)
-    with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
-        userdata = json.load(file)
-    old_path = userdata["excel_old_path"]
-    new_path = userdata["excel_new_path"]
-    file_info = bot.get_file(message.document.file_id)
-    file = bot.download_file(file_info.file_path)
-    with open(message.document.file_name, 'wb') as new_file:
-        new_file.write(file)
-    if message.document.mime_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        source_wb = openpyxl.load_workbook(message.document.file_name)
-        source_sheet = source_wb.active
-        new = openpyxl.load_workbook(new_path)
-        new_sheet = new.active
-        old = openpyxl.load_workbook(old_path)
-        old_sheet = old.active
-        for row in source_sheet.iter_rows(values_only=True):
-            new_sheet.append(row)
-            old_sheet.append(row)
-            new.save(f'UsersData/{data["usernames"][index]}/new.xlsx')
-            old.save(f'UsersData/{data["usernames"][index]}/old.xlsx')
-        source_wb.close()
-        bot.send_message(message.chat.id, 'Данные успешно сохранены')
-        if userdata['Login']:
-            with open('UsersData/ReadyUsers.json', 'r') as file:
-                users = json.load(file)
-            users['usernames'].append(data["usernames"][index])
-            with open('UsersData/ReadyUsers.json', 'w') as file:
-                json.dump(users, file)
-            bot.send_message(message.chat.id, 'Загрузка данных окончена, бот начал работу')
-    else:
-        bot.send_message(message.chat.id, 'Вы отправили файл некоректного типа')
+    try:
+        with open('UsersData/Users.json', 'r') as file:
+            data = json.load(file)
+        with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
+            userdata = json.load(file)
+        old_path = userdata["excel_old_path"]
+        new_path = userdata["excel_new_path"]
+        file_info = bot.get_file(message.document.file_id)
+        file = bot.download_file(file_info.file_path)
+        with open(message.document.file_name, 'wb') as new_file:
+            new_file.write(file)
+        if message.document.mime_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+            bot.send_message(message.chat.id, 'Бот добавляет ваши товары...')
+            source_wb = openpyxl.load_workbook(message.document.file_name)
+            source_sheet = source_wb.active
+            new = openpyxl.load_workbook(new_path)
+            new_sheet = new.active
+            old = openpyxl.load_workbook(old_path)
+            old_sheet = old.active
+            for row in source_sheet.iter_rows(values_only=True):
+                new_sheet.append(row)
+                old_sheet.append(row)
+                new.save(f'UsersData/{data["usernames"][index]}/new.xlsx')
+                old.save(f'UsersData/{data["usernames"][index]}/old.xlsx')
+            source_wb.close()
+            os.remove(message.document.file_name)
+            bot.send_message(message.chat.id, 'Данные успешно сохранены')
+            if userdata['Login']:
+                with open('UsersData/ReadyUsers.json', 'r') as file:
+                    users = json.load(file)
+                users['usernames'].append(data["usernames"][index])
+                with open('UsersData/ReadyUsers.json', 'w') as file:
+                    json.dump(users, file)
+                bot.send_message(message.chat.id, 'Загрузка данных окончена, бот начал работу')
+        else:
+            bot.send_message(message.chat.id, 'Вы отправили файл некоректного типа')
+    except:
+        bot.send_message(message.chat.id, 'Вы совершили ошибку при загрузке товара')
     sleep(1)
     start(message)
     
@@ -211,65 +213,90 @@ def dataAdd(message, index): # добавление логина и пароля
             bot.send_message(message.chat.id,
                              'Введите логин и пароль от https://kaspi.kz/mc в ОДНОМ сообщении через запятую(логин, пароль)')
             bot.register_next_step_handler(message, dataAdd, index)
-
-
-def menu(message, index=None):  # основное меню бота
+def stop_start(message):
     with open('UsersData/Users.json', 'r') as file:
-        try:
+        Fulldata = json.load(file)
+    if message.text in Fulldata['usernames']:
+        with open('UsersData/ReadyUsers.json', 'r') as file:
             data = json.load(file)
-        except:
-            data = None
-    if message.text == '/start':
-        bot.register_next_step_handler(message, start)
-    elif message.text == 'Добавить данные':
-        with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
-            userdata = json.load(file)
-        if userdata['Login'] == None:
-            bot.send_message(message.chat.id,
-                             'Введите логин и пароль от https://kaspi.kz/mc в ОДНОМ сообщении через запятую(логин, пароль)')
-            bot.register_next_step_handler(message, dataAdd, index)
+        if message.text in data['usernames']:
+            index = data['usernames'].index(message.text)
+            data['usernames'].pop(index)
+            bot.send_message(message.chat.id, f'Бот для остановлен для пользователя {message.text}')
         else:
-            global s
-            s = index
-            keyboard = types.InlineKeyboardMarkup()
-            keyboard.add(types.InlineKeyboardButton('Да', callback_data='changeKaspiData'),
-                         types.InlineKeyboardButton('Нет, вернуться в меню', callback_data='ReturnToMainMenu'))
-            bot.send_message(message.chat.id, 'У вас уже введены данные от Kaspi, вы хотите их изменить?1',
-                             reply_markup=keyboard)
-    elif message.text == 'Мои товары':
-        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        keyboard.row(types.KeyboardButton('Список товаров'))
-        keyboard.row(types.KeyboardButton('Добавить товар'), types.KeyboardButton('Удалить товар'))
-        bot.send_message(message.chat.id, 'Меню "Мои товары"', reply_markup=keyboard)
-        bot.register_next_step_handler(message, product, index)
-    elif message.text == 'Как пользоваться ботом?':
-        with open('Files/instruction.txt', 'rb') as file:
-            text = file.read()
-        photo = open('Files/picture.jpg', 'rb')
-        bot.send_photo(message.chat.id, photo, text)
-        sleep(5)
-        start(message)
-    elif message.text == 'Список пользователей':
-        if data:
-            text = ''
-            for i in range(len(data['usernames'])):
-                text += data['usernames'][i] + ':' + data['passwords'][i] + '\n'
-            bot.send_message(message.chat.id, text)
-        else:
-            bot.send_message(message.chat.id, 'Еще не зарегистрированно ни одного пользователя')
-        sleep(3)
-        start(message)
-    elif message.text == 'Выйти':
-        data['loginedUserID'][data['loginedUserID'].index(f'{message.from_user.id}')] = None
-        bot.send_message(message.chat.id, 'Выход выполнен')
-        with open('UsersData/Users.json', 'w') as file:
+            data['usernames'].append(message.text)
+            bot.send_message(message.chat.id, f'Бот для запущен для пользователя {message.text}')
+        with open('UsersData/ReadyUsers.json', 'w') as file:
             json.dump(data, file)
-    elif message.text == 'Добавить пользователя':
-        bot.send_message(message.chat.id, 'Введите логин пользователя')
-        bot.register_next_step_handler(message, reg1)
-    elif message.text == 'Удалить пользователя':
-        bot.send_message(message.chat.id, 'Введите логин пользователя')
-        bot.register_next_step_handler(message, deleteUser)
+        sleep(1)
+        start(message)
+    else:
+        bot.send_message(message.chat.id, 'Данный пользователь не существует')
+        sleep(1)
+        start(message)
+def menu(message, index=None):  # основное меню бота
+    try:
+        with open('UsersData/Users.json', 'r') as file:
+            try:
+                data = json.load(file)
+            except:
+                data = None
+        if message.text == '/start':
+            bot.register_next_step_handler(message, start)
+        elif message.text == 'Добавить данные':
+            with open(f'UsersData/{data["usernames"][index]}/config.json', 'r') as file:
+                userdata = json.load(file)
+            if userdata['Login'] == None:
+                bot.send_message(message.chat.id,
+                                 'Введите логин и пароль от https://kaspi.kz/mc в ОДНОМ сообщении через запятую(логин, пароль)')
+                bot.register_next_step_handler(message, dataAdd, index)
+            else:
+                global s
+                s = index
+                keyboard = types.InlineKeyboardMarkup()
+                keyboard.add(types.InlineKeyboardButton('Да', callback_data='changeKaspiData'),
+                             types.InlineKeyboardButton('Нет, вернуться в меню', callback_data='ReturnToMainMenu'))
+                bot.send_message(message.chat.id, 'У вас уже введены данные от Kaspi, вы хотите их изменить?1',
+                                 reply_markup=keyboard)
+        elif message.text == 'Мои товары':
+            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            keyboard.row(types.KeyboardButton('Список товаров'))
+            keyboard.row(types.KeyboardButton('Добавить товар'), types.KeyboardButton('Удалить товар'))
+            bot.send_message(message.chat.id, 'Меню "Мои товары"', reply_markup=keyboard)
+            bot.register_next_step_handler(message, product, index)
+        elif message.text == 'Остановить/Запустить бот для пользователя':
+            bot.send_message(message.chat.id, 'Напишите логин пользователя')
+            bot.register_next_step_handler(message, stop_start)
+        elif message.text == 'Как пользоваться ботом?':
+            with open('Files/instruction.txt', 'rb') as file:
+                text = file.read()
+            photo = open('Files/picture.jpg', 'rb')
+            bot.send_photo(message.chat.id, photo, text)
+            sleep(5)
+            start(message)
+        elif message.text == 'Список пользователей':
+            if data:
+                text = ''
+                for i in range(len(data['usernames'])):
+                    text += data['usernames'][i] + ':' + str(data['passwords'][i]) + '\n'
+                bot.send_message(message.chat.id, text)
+            else:
+                bot.send_message(message.chat.id, 'Еще не зарегистрированно ни одного пользователя')
+            sleep(3)
+            start(message)
+        elif message.text == 'Выйти':
+            data['loginedUserID'][data['loginedUserID'].index(f'{message.from_user.id}')] = None
+            bot.send_message(message.chat.id, 'Выход выполнен')
+            with open('UsersData/Users.json', 'w') as file:
+                json.dump(data, file)
+        elif message.text == 'Добавить пользователя':
+            bot.send_message(message.chat.id, 'Введите логин пользователя')
+            bot.register_next_step_handler(message, reg1)
+        elif message.text == 'Удалить пользователя':
+            bot.send_message(message.chat.id, 'Введите логин пользователя')
+            bot.register_next_step_handler(message, deleteUser)
+    except:
+        bot.send_message(message.chat.id, 'Возникла ошибка, обратитесь к администратору')
 def deleteUser(message):
     with open('UsersData/Users.json', 'r') as file:
         data = json.load(file)
