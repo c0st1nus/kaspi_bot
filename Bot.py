@@ -11,10 +11,10 @@ import threading
 from time import sleep
 import os
 
-token = ВАШ API
+token = ВАШ ТОКЕН
 
 bot = telebot.TeleBot(token)
-admin = ВАШ ID
+admin = ВАШ АЙДИ
 def my_background_function():
     while True:
         loop()
@@ -32,10 +32,14 @@ def start(message):
             data = json.load(file)
         except:
             data = None
-    if message.from_user.id != admin:
-        if message.from_user.id in data['loginedUserID']:  # проверка на то, что пользователь ранее уже входил в аккаунт
-            path = str(data["usernames"][data['loginedUserID'].index(message.from_user.id)])
+    if str(message.from_user.id) != admin:
+        if str(message.from_user.id) in data['loginedUserID']:  # проверка на то, что пользователь ранее уже входил в аккаунт
+            path = str(data["usernames"][data['loginedUserID'].index(str(message.from_user.id))])
             if not Path(f'UsersData/{path}/config.json').is_file():
+                try:
+                    os.mkdir(f'UsersData/{path}')
+                except:
+                    pass
                 with open(f'UsersData/{path}/config.json', 'w+') as file:
                     data2 = {
                         'Login': None,
@@ -58,7 +62,7 @@ def start(message):
             keyboard.add(types.KeyboardButton('Выйти'), types.KeyboardButton('Добавить данные'),
                          types.KeyboardButton('Мои товары'), types.KeyboardButton('Как пользоваться ботом?'), types.KeyboardButton('Запустить/остановить бот'))
             bot.send_message(message.chat.id, 'Вы зашли в главное меню', reply_markup=keyboard)
-            index = data['loginedUserID'].index(message.from_user.id)
+            index = data['loginedUserID'].index(str(message.from_user.id))
             bot.register_next_step_handler(message, menu, index)
         else:
             keyboard: InlineKeyboardMarkup = types.InlineKeyboardMarkup() # регистрации/авторизация
@@ -207,7 +211,7 @@ def dataAdd(message, index): # добавление логина и пароля
                              'Введите логин и пароль от https://kaspi.kz/mc в ОДНОМ сообщении через запятую(логин, пароль)')
             bot.register_next_step_handler(message, dataAdd, index)
 def stop_start(message):
-    if message.from_user.id == admin:
+    if str(message.from_user.id) == admin:
         with open('UsersData/Users.json', 'r') as file:
             Fulldata = json.load(file)
         if message.text in Fulldata['usernames']:
@@ -234,7 +238,7 @@ def stop_start(message):
     else:
         with open('UsersData/Users.json', 'r') as file:
             data = json.load(file)
-        index = data['loginedUserID'].index(message.from_user.id)
+        index = data['loginedUserID'].index(str(message.from_user.id))
         with open(f'UsersData/{data["usernames"][index]}/config.json') as file:
             userData = json.load(file)
         with open('UsersData/ReadyUsers.json', 'r') as file:
@@ -306,7 +310,7 @@ def menu(message, index=None):  # основное меню бота
             sleep(3)
             start(message)
         elif message.text == 'Выйти':
-            data['loginedUserID'][data['loginedUserID'].index(f'{message.from_user.id}')] = None
+            data['loginedUserID'][data['loginedUserID'].index(f'{str(message.from_user.id)}')] = None
             bot.send_message(message.chat.id, 'Выход выполнен')
             with open('UsersData/Users.json', 'w') as file:
                 json.dump(data, file)
@@ -368,10 +372,10 @@ def login1(message):  # поиск логина в Users.json
     with open('UsersData/Users.json', 'r') as file:
         data = json.load(file)
     if message.text == '/start':
-        bot.register_next_step_handler(message, start)
-    elif message.text.lower() in data['usernames']:
+        start(message)
+    elif str(message.text) in data['usernames']:
         bot.send_message(message.chat.id, 'Введите ваш пароль')
-        index = data['usernames'].index(message.text.lower())
+        index = data['usernames'].index(str(message.text))
         bot.register_next_step_handler(message, login2, index)
     else:
         bot.send_message(message.chat.id, 'Вы ввели не верный логин')
@@ -386,11 +390,11 @@ def login2(message, index):  # проверка пароля и сохранен
         bot.register_next_step_handler(message, start)
     elif message.text == data['passwords'][index]:
         try:
-            data['loginedUserID'][index] = message.from_user.id
+            data['loginedUserID'][index] = str(message.from_user.id)
             with open('UsersData/Users.json', 'w') as file:
                 json.dump(data, file)
         except:
-            data['loginedUserID'].append(message.from_user.id)
+            data['loginedUserID'].append(str(message.from_user.id))
             with open('UsersData/Users.json', 'w') as file:
                 json.dump(data, file)
         bot.send_message(message.chat.id, 'Вход выполнен')
