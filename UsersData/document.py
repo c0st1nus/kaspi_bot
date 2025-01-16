@@ -46,13 +46,13 @@ def excel_actions(action, search_value=None, web_price=None, username=None):
         # Минимальная цена (min price) в new.xmlx
         new_min_price = sheet['K'+f'{number}']
 
-        int_new_min_price = int(new_min_price.value)
-
+        int_new_min_price = int(new_min_price.value.replace('\xa0', ''))
+        
         # Цена конкурента
         int_website_price = int(web_price)
 
 
-        if int_new_price != int_website_price > int_new_min_price < int_upd_price != int_new_price:
+        if int_new_price != int_website_price and int_website_price > int_new_min_price and int_upd_price != int_new_price:
 
             # Изменяет в таблице
             # Новое значение po F + результат поиска (цифра)

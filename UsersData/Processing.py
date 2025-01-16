@@ -47,7 +47,7 @@ def basic_bot_operation(username):
     cycle = 0
     colum_range = len(new_SKU) -1
 
-    print(f'Kaspi-Bot: В эксель файле {colum_range} артикулов.')
+    print(f'Kaspi-Bot: В эксель файле {colum_range+1} артикулов.')
 
     for sku in new_SKU:
         cycle += 1
