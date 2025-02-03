@@ -1,5 +1,4 @@
 import random
-
 from user_agents.chrome_json import lists as chrome_list
 from user_agents.firefox_json import lists as firefox_list
 

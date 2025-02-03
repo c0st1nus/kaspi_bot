@@ -3,9 +3,8 @@ from contextlib import closing
 from time import sleep
 import os
 from selenium import webdriver
-
-
-def try_to_sign_in_upload_kaspi(User_login, User_password):
+from UsersData.handler import DatabaseHandler, db_connection
+def try_to_sign_in_upload_kaspi(User_login, User_password) -> bool:
 
     option = webdriver.FirefoxOptions()
     option.add_argument("--headless")
@@ -19,13 +18,13 @@ def try_to_sign_in_upload_kaspi(User_login, User_password):
             login_email_buttom_xpath = '//*[@id="email_tab"]'
             browser.find_element('xpath', login_email_buttom_xpath).click()
 
-            sleep(2)
+            sleep(0.5)
 
             email_input_xpath = '//*[@id="user_email_field"]'
             email_input = browser.find_element('xpath', email_input_xpath)
             email_input.send_keys(User_login)
 
-            sleep(2)
+            sleep(0.5)
 
             # Кликаем Продолжить
             continue_xpath = '/html/body/div/main/div/div/div/div[2]/section/section/form/button'
@@ -36,24 +35,23 @@ def try_to_sign_in_upload_kaspi(User_login, User_password):
             password_input = browser.find_element('xpath', password_xpath)
             password_input.send_keys(User_password)
 
-            sleep(2)
+            sleep(0.5)
 
             # Кликает на конпку Войти
             sign_in_xpath = '/html/body/div/main/div/div/div/div[2]/section/section/form/button'
             browser.find_element('xpath', sign_in_xpath).click()
 
             # Ожидаем загрузку страницы
-            sleep(5)
+            sleep(3)
             return True
         except Exception as e:
             print(e)
 
-
-def sign_in_upload_kaspi(username):
-    with open(f'UsersData/{username}/config.json') as file:
-        data = json.load(file)
+@db_connection
+def sign_in_upload_kaspi(telegram_id, conn: DatabaseHandler):
+    data = conn.query_data("SELECT * FROM users WHERE telegram_id = ?", (telegram_id,))[0]
     option = webdriver.FirefoxOptions()
-    option.add_argument("--headless")
+    # option.add_argument("--headless")
 
     with closing(webdriver.Firefox(options=option)) as browser:
         browser.get("https://kaspi.kz/mc/")
@@ -68,7 +66,7 @@ def sign_in_upload_kaspi(username):
 
             email_input_xpath = '//*[@id="user_email_field"]'
             email_input = browser.find_element('xpath', email_input_xpath)
-            email_input.send_keys(data["Login"])
+            email_input.send_keys(data["login"])
 
             sleep(1)
 
@@ -79,7 +77,7 @@ def sign_in_upload_kaspi(username):
             # Вводим пароль
             password_xpath = '//*[@id="password_field"]'
             password_input = browser.find_element('xpath', password_xpath)
-            password_input.send_keys(data["Pass"])
+            password_input.send_keys(data["password"])
 
             sleep(1)
 
@@ -99,7 +97,7 @@ def sign_in_upload_kaspi(username):
         # Скролл
         browser.execute_script("window.scrollTo(0, 250)")
 
-        excel_price_path = f'UsersData/{username}/price_new.xlsx'
+        excel_price_path = f'UsersData/{telegram_id}/pricelist.xlsx'
         absolute_path = os.path.abspath(excel_price_path)
         url = absolute_path.replace("/", "\\")
         # dell
