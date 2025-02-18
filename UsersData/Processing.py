@@ -1,7 +1,7 @@
 import random
 from time import sleep
 from user_agents.random_agnet import get_agent
-from UsersData.browser_bot import sign_in_upload_kaspi
+from UsersData.browser_bot import sign_in_upload_kaspi, get_previous_upload_date
 from UsersData.handler import DatabaseHandler, db_connection
 from kaspi.get import request
 from openpyxl import load_workbook, Workbook
@@ -21,35 +21,41 @@ def loop(conn: DatabaseHandler):
         CREATE TABLE IF NOT EXISTS products (
             article VARCHAR(50) NOT NULL PRIMARY KEY,
             user_id VARCHAR(20) NOT NULL,
-            description VARCHAR(50) NOT NULL,
+            model VARCHAR(50) NOT NULL,
+            brand VARCHAR(50) NOT NULL,
             shop_article VARCHAR(50) NOT NULL,
             price INTEGER NOT NULL,
             minimal_price INTEGER NOT NULL,
+            PP1 BOOLEAN DEFAULT 0,
+            PP2 BOOLEAN DEFAULT 0,
+            PP3 BOOLEAN DEFAULT 0,
+            PP4 BOOLEAN DEFAULT 0,
+            PP5 BOOLEAN DEFAULT 0,
+            preorders  DEFAULT 0,
             FOREIGN KEY (user_id) REFERENCES users (telegram_id)
         )""")
     users = conn.query_data("SELECT telegram_id FROM users WHERE bot_status = 1")
     if not users:
         print('Нет активных пользователей')
         print('===============================================')
-        randm = random.randint(30, 45) * 60
-        print(f'Kaspi-Bot: Следующий старт через: {randm/60} мин.')
+        randm = random.randint(30, 45)
+        print(f'Kaspi-Bot: Следующий старт через: {randm} сек.')
         sleep(randm)
     else:
         for user in users:
             workbook = load_workbook(f"UsersData/{user['telegram_id']}/pricelist.xlsx")
             sheet = workbook.active
             sheet.delete_rows(2, sheet.max_row)
-
+            workbook.save(f"UsersData/{user['telegram_id']}/pricelist.xlsx")
+            workbook.close()
             print(f'Пользователь: {user["telegram_id"]}')
             print('===============================================')
             
             basic_bot_operation(user['telegram_id'])
             sign_in_upload_kaspi(user['telegram_id'])
-            sleep(2)
-        
-        randm = random.randint(30, 45) * 60
-        print(f'Kaspi-Bot: Следующий старт через: {randm/60} мин.')
-        sleep(randm)
+            sleep(1)
+        print(f'Kaspi-Bot: Следующий старт через: 30 мин.')
+        sleep(1800)
 
 @db_connection
 def basic_bot_operation(telegram_id, conn: DatabaseHandler):
@@ -88,8 +94,8 @@ def handler(product, conn: DatabaseHandler):
         return
 
     web_price = current_price - 1
-    stored_price = product["price"]
-    min_price = product["minimal_price"]
+    stored_price = int(product["price"])
+    min_price = int(product["minimal_price"])
 
     file_path = f"UsersData/{product['user_id']}/pricelist.xlsx"
     try:
@@ -98,20 +104,23 @@ def handler(product, conn: DatabaseHandler):
     except FileNotFoundError:
         workbook = Workbook()
         sheet = workbook.active
-
-    if stored_price != web_price and web_price > int(min_price):
+    if web_price < min_price:
+        web_price = min_price
+    if web_price == stored_price:
+        print(f'Kaspi-Bot: Цена не изменилась: {web_price}')
+        return
+    else:
         conn.update_data("products", {"price": web_price}, "article = ?", (product["article"],))
-
         next_row = sheet.max_row + 1
         sheet.cell(row=next_row, column=1, value=product["article"])
-        sheet.cell(row=next_row, column=2, value=product["description"])
-        sheet.cell(row=next_row, column=3, value=web_price)
-        sheet.cell(row=next_row, column=4, value="yes")
-        sheet.cell(row=next_row, column=10, value=min_price)
-        
-
-
+        sheet.cell(row=next_row, column=2, value=product["model"])
+        sheet.cell(row=next_row, column=3, value=product["brand"])
+        sheet.cell(row=next_row, column=4, value=web_price)
+        sheet.cell(row=next_row, column=5, value=("yes" if product["PP1"] else "no"))
+        sheet.cell(row=next_row, column=6, value=("yes" if product["PP2"] else "no"))
+        sheet.cell(row=next_row, column=7, value=("yes" if product["PP3"] else "no"))
+        sheet.cell(row=next_row, column=8, value=("yes" if product["PP4"] else "no"))
+        sheet.cell(row=next_row, column=9, value=("yes" if product["PP5"] else "no"))
+        sheet.cell(row=next_row, column=10, value=product["preorders"])
         workbook.save(file_path)
         print(f'Kaspi-Bot обновил цену: Новая: {web_price}, Старая: {stored_price}, Min Price: {min_price}')
-    else:
-        print('Kaspi-Bot: Обновление цены не требуется.')

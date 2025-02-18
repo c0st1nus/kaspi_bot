@@ -23,8 +23,9 @@ def request(id_id, user_agent):
     response = requests.post(url=url, headers=headers, json=json_data)
 
     try:
-        response_data = response.json()['offers'][0]
-        return(response_data)
+        response_data = response.json()
+        result = response_data['offers'][0] if response_data['offers'][0]['price'] < response_data['offers'][-1]['price'] else response_data['offers'][-1] 
+        return(result)
 
     except:
         print('Kaspi-Bot: Товар по артикулу не найден.')

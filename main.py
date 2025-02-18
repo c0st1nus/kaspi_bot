@@ -3,7 +3,7 @@ import telebot
 from telebot import types
 from pathlib import Path
 from openpyxl import load_workbook, Workbook
-import os
+from io import BytesIO
 from functools import wraps
 from UsersData.handler import DatabaseHandler, db_connection
 from UsersData.browser_bot import try_to_sign_in_upload_kaspi
@@ -11,7 +11,7 @@ from UsersData.Processing import loop
 import threading
 from time import sleep
 
-token = "TOKEN"
+token = ""
 bot = telebot.TeleBot(token)
 
 animate = True
@@ -29,11 +29,11 @@ background_thread.start()
 def handle_errors(func):
     @wraps(func)
     def wrapper(message, *args, **kwargs):
-        try:
+        # try:+
             return func(message, *args, **kwargs)
-        except Exception as e:
-            bot.send_message(message.chat.id, '⚠️ Произошла ошибка. Пожалуйста, попробуйте снова или обратитесь к администратору.')
-            print(f"Error in {func.__name__}: {str(e)}")
+        # except Exception as e:
+        #     bot.send_message(message.chat.id, '⚠️ Произошла ошибка. Пожалуйста, попробуйте снова или обратитесь к администратору.')
+        #     print(f"Error in {func.__name__}: {str(e)}")
     return wrapper
 
 def create_main_keyboard():
@@ -62,11 +62,16 @@ def start(message, conn):
         workbook = Workbook()
         sheet = workbook.active
 
-        sheet.cell(row=1, column=1, value="article")
-        sheet.cell(row=1, column=2, value="description")
-        sheet.cell(row=1, column=4, value="price")
-        sheet.cell(row=1, column=5, value="PP1")
-        sheet.cell(row=1, column=11, value="min_price")
+        sheet.cell(row=1, column=1, value="article") # A
+        sheet.cell(row=1, column=2, value="model") # B
+        sheet.cell(row=1, column=3, value="brand") # C
+        sheet.cell(row=1, column=4, value="price") # D
+        sheet.cell(row=1, column=5, value="PP1") # E
+        sheet.cell(row=1, column=6, value="PP2") # F
+        sheet.cell(row=1, column=7, value="PP3") # G
+        sheet.cell(row=1, column=8, value="PP4") # H
+        sheet.cell(row=1, column=9, value="PP5") # I
+        sheet.cell(row=1, column=10, value="preorder") # J
 
         workbook.save(excel_file)
         workbook.close()
@@ -190,7 +195,7 @@ def handle_products(message, conn):
         if not products:
             bot.send_message(message.chat.id, '📭 У вас пока нет товаров')
         else:
-            response = '\n'.join([f"{idx+1}. {p['description']} - {p["price"]} - (арт. {p['article']})" 
+            response = '\n'.join([f"{idx+1}. {p['model']} - {p["price"]} - (арт. {p['article']})" 
                                 for idx, p in enumerate(products)])
             bot.send_message(message.chat.id, f'📦 Ваши товары:\n{response}')
         bot.send_message(message.chat.id, '🏠 Вы в главном меню', 
@@ -206,53 +211,53 @@ def handle_products(message, conn):
         bot.send_message(message.chat.id, "⚠️ Неизвестная команда в меню товаров")
         show_products_menu(message)
 
+
 @handle_errors
 @db_connection
 def process_excel_file(message, conn: DatabaseHandler):
-    try:
-        file_info = bot.get_file(message.document.file_id)
-        file = bot.download_file(file_info.file_path)
-        
-        # Save with unique filename
-        filename = f"temp_{message.from_user.id}.xlsx"
-        with open(filename, 'wb') as f:
-            f.write(file)
-            
-        wb = load_workbook(filename)
-        sheet = wb.active
-        
-        # Process rows (example implementation)
-        for row in sheet.iter_rows(min_row=2, values_only=True):  # Skip header
-            existing_product = conn.query_data("SELECT * FROM products WHERE article = ?", (row[0],))
-            price = row[3]
-            min_price = row[10] if row[10] else 0
+    file_info = bot.get_file(message.document.file_id)
+    file = bot.download_file(file_info.file_path)
     
+    try:
+        # Use BytesIO to handle the file in memory
+        file_stream = BytesIO(file)
+        wb = load_workbook(filename=file_stream, read_only=True)
+        sheet = wb.active
+
+        # Process rows
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            existing_product = conn.query_data("SELECT * FROM products WHERE article = ?", (row[0],))
+
+            data = {
+                'user_id': message.from_user.id,
+                'article': row[0],
+                'model': row[1],
+                'brand': row[2] if row[2] else "",
+                'price': row[3],
+                'PP1': row[4] == "yes",
+                'PP2': row[5] == "yes",
+                'PP3': row[6] == "yes",
+                'PP4': row[7] == "yes",
+                'PP5': row[8] == "yes",
+                'preorders': row[9] if row[9] else 0,
+                'shop_article': row[10],
+                'minimal_price': row[10] if row[10] else 0
+            }
+
             if existing_product:
-                conn.update_data('products', {
-                    'user_id': message.from_user.id,
-                    'article': row[0],    # A
-                    'description': row[1],# B
-                    'shop_article': row[2], # C
-                    'price': price, # D
-                    'minimal_price': min_price # K
-                }, "article = ?", (row[0],))
+                conn.update_data('products', data, "article = ?", (row[0],))
             else:
-                conn.insert_data('products', {
-                    'user_id': message.from_user.id,
-                    'article': row[0],    # A
-                    'description': row[1],# B
-                    'shop_article': row[2], # C
-                    'price': price, # D
-                    'minimal_price': min_price # K
-                })
-        wb.save(filename)
-        wb.close()
-        os.remove(filename)
+                conn.insert_data('products', data)
+        
         bot.send_message(message.chat.id, '✅ Товары успешно добавлены')
     except Exception as e:
-        bot.send_message(message.chat.id, '❌ Ошибка обработки файла')
-        print(f"Excel processing error: {str(e)}")
+        print(f"Error processing Excel file: {str(e)}")
+        bot.send_message(message.chat.id, '❌ Ошибка при обработке файла')
     finally:
+        # Ensure workbook is closed and clean up
+        if 'wb' in locals():
+            wb.close()
+        file_stream.close()
         bot.send_message(message.chat.id, '🏠 Вы в главном меню', 
                         reply_markup=create_main_keyboard())
         bot.register_next_step_handler(message, menu)
